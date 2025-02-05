@@ -95,21 +95,20 @@ namespace NeonCollate
         [HarmonyPatch]
         public class MainMenuSelectCampaignPatch
         {
+            [HarmonyPatch(typeof(MainMenu), "SelectCampaign")]
             [HarmonyPostfix]
-            public static void Postfix()
+            public static void PostfixSelectCampaign(string campaignID)
             {
-                Sidequests.PushDown();
+                if (campaignID == "C_MAINQUEST") // lazy
+                    Sidequests.PushDown();
             }
 
-            [HarmonyTargetMethods]
-            public static IEnumerable<MethodBase> TargetMethods()
+            [HarmonyPatch(typeof(MainMenu), "OnPressBackButton")]
+            [HarmonyPostfix]
+            public static void PostfixBackButton(string ____lastCampaignID)
             {
-                var targetMethods = new List<MethodBase>
-                {
-                    AccessTools.Method(typeof(MainMenu), "SelectCampaign"),
-                    AccessTools.Method(typeof(MainMenu), "OnPressBackButton")
-                };
-                return targetMethods;
+                if (____lastCampaignID == "C_MAINQUEST") // lazy
+                    Sidequests.PushDown();
             }
         }
     }
